@@ -1,3 +1,11 @@
+@echo off
+chcp 65001 >nul
+set "HBMDIR=%~dp0"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$c=[IO.File]::ReadAllText('%~f0'); $c=$c.Substring($c.LastIndexOf('#PS'+'#')+4); & ([scriptblock]::Create($c)) %*"
+echo.
+pause
+exit /b
+#PS#
 param(
     [string]$Jar,
     [string]$Name = ''   # необязательно: часть имени класса миксина, если авто-поиск не сработает
@@ -6,7 +14,7 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
-$dir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$dir = $env:HBMDIR.TrimEnd([char]92)
 if (-not $Jar) {
     $found = Get-ChildItem $dir -Filter 'hbm*.jar' |
         Where-Object { $_.Name -notlike '*-fixed.jar' } | Select-Object -First 1
